@@ -1,3 +1,5 @@
+import type { vec3 } from "gl-matrix";
+
 export class Shader {
     readonly program: WebGLProgram;
     private uniformLocations: Map<string, WebGLUniformLocation|null>;
@@ -141,7 +143,7 @@ export class Shader {
         this.gl.uniform4fv(this.getUniformLocation(name), value);
     }
 
-    setVec3(name: string, value: Float32Array | [number, number, number]): void {
+    setVec3(name: string, value: Float32Array | [number, number, number] | vec3): void {
         this.gl.uniform3fv(this.getUniformLocation(name), value);
     }
 
