@@ -162,8 +162,6 @@ export class App {
       'position:fixed;top:8px;left:8px;padding:6px 10px;background:rgba(0,0,0,0.5);' +
       'color:#fff;font:14px monospace;pointer-events:none;z-index:10;white-space:pre';
     this.fpsElement = document.createElement('div');
-    const gpuElement = document.createElement('div');
-    gpuElement.textContent = App.describeRenderer(gl);
     const controlsElement = document.createElement('div');
     controlsElement.style.marginTop = '6px';
     controlsElement.textContent = [
@@ -178,18 +176,8 @@ export class App {
       'C       toggle clouds',
       'H       toggle HUD',
     ].join('\n');
-    this.hudElement.append(this.fpsElement, gpuElement, controlsElement);
+    this.hudElement.append(this.fpsElement, controlsElement);
     document.body.appendChild(this.hudElement);
-  }
-
-  // Reports whether WebGL is backed by a GPU or a software rasterizer (e.g. SwiftShader, llvmpipe).
-  private static describeRenderer(gl: WebGL2RenderingContext): string {
-    const info = gl.getExtension('WEBGL_debug_renderer_info');
-    const renderer: string = info
-      ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL)
-      : gl.getParameter(gl.RENDERER);
-    const isSoftware = /swiftshader|llvmpipe|softpipe|software|basic render|microsoft basic/i.test(renderer);
-    return `${isSoftware ? 'Rendering: CPU (software)' : 'Rendering: GPU'}\n${renderer}`;
   }
 
   start() {
