@@ -56,14 +56,24 @@ export class App {
   private input: InputHandler;
   private camera: Camera;
 
-
   private sunAngle: number = 0; // radians, 0 = sun directly above +X axis
   private sunDir: vec3 = vec3.create();
 
   private renderClouds: boolean = true;
+  private debounceCloudToggle: boolean = true;
 
   
   private lastTime: number = 0;
+  private lastWidth: number = 0;
+  private lastHeight: number = 0;
+
+  // Framerate display
+  private hudElement: HTMLDivElement;
+  private hudVisible: boolean = true;
+  private debounceHudToggle: boolean = true;
+  private fpsElement: HTMLDivElement;
+  private fpsFrames: number = 0;
+  private fpsLastUpdate: number = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -143,7 +153,31 @@ export class App {
     this.input = new InputHandler(canvas);
     this.camera = new Camera([PLANET_RADIUS + 800.0, 0, 0]);
     this.camera.setAspect(canvas.width / canvas.height);
+    this.lastWidth = canvas.width;
+    this.lastHeight = canvas.height;
     this.updateSunDirection();
+
+    this.hudElement = document.createElement('div');
+    this.hudElement.style.cssText =
+      'position:fixed;top:8px;left:8px;padding:6px 10px;background:rgba(0,0,0,0.5);' +
+      'color:#fff;font:14px monospace;pointer-events:none;z-index:10;white-space:pre';
+    this.fpsElement = document.createElement('div');
+    const controlsElement = document.createElement('div');
+    controlsElement.style.marginTop = '6px';
+    controlsElement.textContent = [
+      'Mouse   look (click to lock)',
+      'W/A/S/D move',
+      'Space   up',
+      'Shift   down',
+      'Q/E     rotate sun',
+      '1/3     rotate sun (slow)',
+      'T       reset sun',
+      'R       reset orientation',
+      'C       toggle clouds',
+      'H       toggle HUD',
+    ].join('\n');
+    this.hudElement.append(this.fpsElement, controlsElement);
+    document.body.appendChild(this.hudElement);
   }
 
   start() {
@@ -176,10 +210,35 @@ export class App {
 
   private tick = (time: number) => {
     const deltaTime = time - this.lastTime;
+    this.handleResize();
     this.updateCamera(deltaTime);
     this.render(deltaTime);
+    this.updateFps(time);
     this.lastTime = time;
     requestAnimationFrame(this.tick);
+  }
+
+  // Resize framebuffers and camera aspect when the canvas size changes (main.ts resizes the canvas)
+  private handleResize(): void {
+    const { width, height } = this.canvas;
+    if (width === this.lastWidth && height === this.lastHeight) return;
+    if (width === 0 || height === 0) return;
+    this.lastWidth = width;
+    this.lastHeight = height;
+    for (const fb of [this.gbufferFB, this.atmosphereFB, this.cloudFB, this.compositeFB]) {
+      fb.resize(width, height);
+    }
+    this.camera.setAspect(width / height);
+  }
+
+  private updateFps(time: number): void {
+    this.fpsFrames++;
+    const elapsed = time - this.fpsLastUpdate;
+    if (elapsed >= 500) {
+      this.fpsElement.textContent = `${Math.round((this.fpsFrames * 1000) / elapsed)} FPS`;
+      this.fpsFrames = 0;
+      this.fpsLastUpdate = time;
+    }
   }
 
   private render(deltaTime: number): void {
@@ -258,11 +317,25 @@ export class App {
     if (this.input.isPointerLocked()) {
         const mouseDelta = this.input.getMouseDelta();
         this.camera.rotateYaw(-mouseDelta.x * turnSpeed);
-        this.camera.rotatePitch(-mouseDelta.y * turnSpeed);
+        this.camera.rotatePitch(mouseDelta.y * turnSpeed);
     }
 
     // C - enable/disable clouds
-    if (this.input.isKeyPressed('KeyC')) this.renderClouds = !this.renderClouds;
+    if (this.input.isKeyPressed('KeyC') && this.debounceCloudToggle){
+      this.renderClouds = !this.renderClouds;
+      this.debounceCloudToggle = false;
+    } else if (!this.input.isKeyPressed('KeyC') && !this.debounceCloudToggle){
+      this.debounceCloudToggle = true;
+    }
+
+    // H - show/hide HUD (FPS + controls)
+    if (this.input.isKeyPressed('KeyH') && this.debounceHudToggle) {
+      this.hudVisible = !this.hudVisible;
+      this.hudElement.style.display = this.hudVisible ? 'block' : 'none';
+      this.debounceHudToggle = false;
+    } else if (!this.input.isKeyPressed('KeyH') && !this.debounceHudToggle) {
+      this.debounceHudToggle = true;
+    }
 
     // WASD — move in camera-local horizontal plane
     const direction = vec3.create();
@@ -297,7 +370,7 @@ export class App {
         this.updateSunDirection();
     }
 
-    // T — snap sun to noon
+    // T — reset sun
     if (this.input.isKeyPressed('KeyT')) {
         this.sunAngle = Math.PI / 2;
         this.updateSunDirection();

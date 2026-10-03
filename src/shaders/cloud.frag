@@ -19,7 +19,7 @@ const float CLOUD_BOTTOM = 10.0 * ATMOSPHERE_SCALE;
 const float CLOUD_TOP = 50.0 * ATMOSPHERE_SCALE;
 const float CLOUD_COVERAGE = 0.333; // Percentage of the sky covered by clouds
 const float CLOUD_DENSITY_SCALE = 1.0; // Overall density of the clouds
-const int CLOUD_STEPS = 128;
+const int CLOUD_STEPS = 256;
 const int SHADOW_STEPS = 16;
 
 // Henyey-Greenstein phase function with dual lobes

@@ -11,7 +11,7 @@ const vec3 betaR = RAYLEIGH_COEFFICIENT * (1.0 / PLANET_SCALE);
 const float betaM = MIE_COEFFICIENT * (1.0 / PLANET_SCALE);
 const float betaMExt = MIE_EXTINCTION * (1.0 / PLANET_SCALE);
 
-const int VIEW_RAY_SAMPLES = 32;
+const int VIEW_RAY_SAMPLES = 64;
 const int SUN_RAY_SAMPLES = 16;
 
 // The density of the atmosphere at a given position
