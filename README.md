@@ -34,21 +34,21 @@ To produce a static build:
 npm run build
 ```
 
-The output is written to `dist/`. To preview the production build locally:
+The built site is written to the repo root (`index.html`, `assets/`, `earth.png`); the app source entry is `src/index.html`. To preview the production build locally:
 
 ```bash
 npm run preview
 ```
-alternatively, serve the `dist/` directory with any static file server.
+alternatively, serve the repo root with any static file server (note it expects to be hosted under `/planet-renderer/`).
 ```bash
-http-server -c-1 dist/
+http-server -c-1 .
 ```
 
 ## Deploying to GitHub Pages
 
-The repo includes a workflow (`.github/workflows/deploy.yml`) that builds the app and publishes `dist/` to GitHub Pages on every push to `main`.
+The site is deployed straight from the root of the `main` branch. `npm run build` writes the built app to the repo root, and those files are committed.
 
-One-time setup: in the GitHub repo, go to **Settings → Pages → Source** and select **GitHub Actions**. After the next push, the site is available at `https://<your-username>.github.io/planet-renderer/`.
+One-time setup: in the GitHub repo, go to **Settings → Pages**, set **Source** to **Deploy from a branch**, and choose branch `main` with folder `/ (root)`. To publish an update, run `npm run build`, commit the changed built files (`index.html`, `assets/`, `earth.png`), and push. The site is available at `https://<your-username>.github.io/planet-renderer/`.
 
 `vite.config.ts` sets `base: '/planet-renderer/'` to match the repository name. If you rename the repo (or deploy somewhere other than a project page), update that value. Note that `npm run dev` and `npm run preview` also serve under this base path.
 

@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import glsl from 'vite-plugin-glsl';
 
 export default defineConfig({
+  root: 'src',                // app entry (index.html) lives in src/ so the repo root can hold the built site
+  publicDir: '../public',
   base: '/planet-renderer/',  // GitHub Pages serves the site from /<repo-name>/
   plugins: [
     glsl({
@@ -18,5 +20,7 @@ export default defineConfig({
   build: {
     target: 'es2020',
     sourcemap: true,
+    outDir: '..',         // built site is written to the repo root, served by GitHub Pages (main, /)
+    emptyOutDir: false,   // never wipe the repo root; stale assets are removed by `npm run clean`
   },
 });

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "clean": "node -e \"require('fs').rmSync('assets',{recursive:true,force:true})\"",
+    "build": "tsc && npm run clean && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
