@@ -6,7 +6,7 @@ import { Shader } from "./core/Shader";
 import fullscreenFS from "./shaders/gradient.frag";
 import fullscreenVS from "./shaders/fullscreen.vert";
 import gbufferFS from "./shaders/gbuffer.frag";
-import gbufferVS from "./shaders/gBuffer.vert";
+import gbufferVS from "./shaders/gbuffer.vert";
 import atmosphereFS from "./shaders/atmosphere.frag"
 import compositeFS from "./shaders/composite.frag"
 import cloudFS from "./shaders/cloud.frag"
